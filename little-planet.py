@@ -23,7 +23,7 @@ class Planet(object):
             arcade.color.BLACK,
             arcade.color.BLUE_SAPPHIRE
         )
-    
+
     def position_as_tuple(self):
         return self.centre.real, self.centre.imag
 
@@ -75,6 +75,12 @@ class LittlePlanet(arcade.Window):
 
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        
+        self.program = self.ctx.load_program(
+            vertex_shader=r"C:\Users\jonte\OneDrive\Skrivbord\little-planet\assets\shaders\radial-gradient.vert",
+            fragment_shader=r"C:\Users\jonte\OneDrive\Skrivbord\little-planet\assets\shaders\radial-gradient.frag")
+        # Create a rectangle that will hold where the mini-map goes
+        self.mini_map_rect = arcade.gl.geometry.screen_rectangle(-1.0, -1.0, 2.0, 2.0)
 
         arcade.set_background_color(arcade.csscolor.BLACK)
 
@@ -92,9 +98,14 @@ class LittlePlanet(arcade.Window):
 
         arcade.start_render()
         # Code to draw the screen goes here
+
         arcade.draw_text("Little Planet", 12, 12, arcade.color.BLACK, 14)
     
-        self.planet.atmosphere.draw()
+        # self.planet.atmosphere.draw()
+        self.program["planet_centre"] = (500, 325)
+        # self.program["colour"] = (0.0, 255, 255, 255)
+        self.mini_map_rect.render(self.program)
+
         arcade.draw_circle_filled(*self.planet.position_as_tuple(), self.planet.radius, self.planet.colour, 100)
         for player in self.players:
             arcade.draw_rectangle_filled(
