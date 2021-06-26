@@ -38,6 +38,10 @@ class Actor(object):
         self.size = size
         self.colour = colour
 
+    def jump(self):
+        if self.height_above_ground == 0.0:
+            self.jump_velocity = self.jump_strength
+
     def tick(self, planet: Planet, dt: float):
         self.position += self.velocity * dt
         self.height_above_ground = max(self.height_above_ground + self.jump_velocity * dt, 0.0)
@@ -111,28 +115,27 @@ class LittlePlanet(arcade.Window):
         elif symbol == arcade.key.D:
             self.players[0].velocity = -self.players[0].walking_speed * π/180.0
         elif symbol == arcade.key.SPACE:
-            self.players[0].jump_velocity = self.players[0].jump_strength
+            self.players[0].jump()
         elif symbol == arcade.key.LEFT:
             self.players[1].velocity = self.players[1].walking_speed * π/180.0
         elif symbol == arcade.key.RIGHT:
             self.players[1].velocity = -self.players[1].walking_speed * π/180.0
         elif symbol == arcade.key.UP:
-            self.players[1].jump_velocity = self.players[1].jump_strength
+            self.players[1].jump()
         return super().on_key_press(symbol, modifiers)
 
     def on_key_release(self, symbol: int, modifiers: int):
         if symbol == arcade.key.A:
-            self.players[0].velocity = 0
+            self.players[0].velocity = 0.0
         elif symbol == arcade.key.D:
-            self.players[0].velocity = 0
+            self.players[0].velocity = 0.0
         if symbol == arcade.key.LEFT:
-            self.players[1].velocity = 0
+            self.players[1].velocity = 0.0
         elif symbol == arcade.key.RIGHT:
-            self.players[1].velocity = 0
+            self.players[1].velocity = 0.0
         return super().on_key_release(symbol, modifiers)
 
 def main():
-    """Main method"""
     window = LittlePlanet()
     window.setup()
     arcade.run()
