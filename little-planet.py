@@ -1,6 +1,7 @@
 # TODO: Rust webassembly?
 from math import cos, pi as π, sin
 import arcade
+import arcade.gl
 
 class Body(object):
     def __init__(self):
@@ -12,10 +13,18 @@ class Planet(object):
         self.centre = SCREEN_WIDTH / 2 + SCREEN_HEIGHT / 2 * 1j # m
         self.radius = 110 # m
         self.gravity = -40.0
-        self.colour =  arcade.color.ANDROID_GREEN
         self.mass = 10 # kg
+
+        self.colour =  arcade.color.ANDROID_GREEN
+        self.atmosphere = arcade.create_ellipse_filled_with_colors(
+            *self.position_as_tuple(),
+            self.radius + 80,
+            self.radius + 80,
+            arcade.color.BLACK,
+            arcade.color.BLUE_SAPPHIRE
+        )
     
-    def cartesian_position(self):
+    def position_as_tuple(self):
         return self.centre.real, self.centre.imag
 
 class Actor(object):
@@ -37,6 +46,9 @@ class Actor(object):
     def cartesian_position(self, planet: Planet):
         z = planet.centre + (planet.radius + self.size.imag * 0.5 + self.height_above_ground) * (cos(self.position) + sin(self.position)*1j)
         return z.real, z.imag
+    
+    def size_as_tuple(self):
+        return self.size.real, self.size.imag
 
 class World(object):
     def __init__(self):
@@ -60,7 +72,7 @@ class LittlePlanet(arcade.Window):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
-        arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
+        arcade.set_background_color(arcade.csscolor.BLACK)
 
         self.players = (
             Actor(20.0+30.0j, arcade.color.ORANGE_PEEL),
@@ -77,12 +89,13 @@ class LittlePlanet(arcade.Window):
         arcade.start_render()
         # Code to draw the screen goes here
         arcade.draw_text("Little Planet", 12, 12, arcade.color.BLACK, 14)
-        arcade.draw_circle_filled(*self.planet.cartesian_position(), self.planet.radius, self.planet.colour, 100)
-        
+    
+        self.planet.atmosphere.draw()
+        arcade.draw_circle_filled(*self.planet.position_as_tuple(), self.planet.radius, self.planet.colour, 100)
         for player in self.players:
             arcade.draw_rectangle_filled(
                 *player.cartesian_position(self.planet),
-                player.size.real, player.size.imag,
+                *player.size_as_tuple(),
                 player.colour,
                 (-player.position + π/2) * 180/π
             )
